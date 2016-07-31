@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Get started with SceneView - Create a 3D map</title>
+<style>
+  html, body, #viewDiv {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+  }
+  #layerToggle {
+    top: 20px;
+    right: 20px;
+    position: absolute;
+    z-index: 99;
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px;
+    opacity: 0.75;
+  }
+</style>
+<link rel="stylesheet" href="https://js.arcgis.com/4.0/esri/css/main.css">
+<script src="https://js.arcgis.com/4.0/"></script>
+<script>
+  require([
+    "esri/Map",
+    "esri/layers/TileLayer",
+    "esri/views/SceneView",
+    "dojo/dom",
+    "dojo/on",
+    "dojo/domReady!"
+  ], function(Map, TileLayer, SceneView, dom, on){
+    var transportLayer = new TileLayer({
+      url:"https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer",
+      id:"streets",
+      opacity:0.7
+    });
+
+    var footprintLayer = new TileLayer({
+      url:"https://tiles.arcgis.com/tiles/nGt4QxSblgDfeJn9/arcgis/rest/services/New_York_Footprint/MapServer",
+      id:"ny-footprint",
+      opacity:0.5
+    });
+
+
+    var map = new Map({
+      basemap: "gray",
+      ground: "world-elevation",
+      layers:[footprintLayer]
+    });
+
+    map.add(transportLayer);
+
+    var view = new SceneView({
+      container: "viewDiv",     // Reference to the scene div created in step 5
+      map: map                 // Reference to the map object created before the scene
+    });
+
+    view.on("layerview-create", function(evt){
+      if (evt.layer.id === "ny-footprint"){
+        console.log("LayerView for New York footprint created!", evt.layerView);
+      }
+      if (evt.layer.id === "streets"){
+        console.log("LayerView for streets created!", evt.layerView);
+      }
+    });
+
+    view.then(function() {
+      footprintLayer.then(function() {
+        view.goTo(footprintLayer.fullExtent);
+      });
+    });
+
+    var streetsLyrToggle = dom.byId("streetsLyr");
+
+    on(streetsLyrToggle, "change", function(){
+      transportLayer.visible = streetsLyrToggle.checked;
+    });
+
+  });
+</script>
+</head>
+<body>
+  <div id="viewDiv"></div>
+  <span id="layerToggle">
+    <input type="checkbox" id="streetsLyr"> Transportation
+  </span>
+</body>
+</html>
