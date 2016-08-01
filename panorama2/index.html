@@ -29,10 +29,11 @@
     "esri/Map",
     "esri/layers/TileLayer",
     "esri/views/SceneView",
+    "esri/layers/FeatureLayer",
     "dojo/dom",
     "dojo/on",
     "dojo/domReady!"
-  ], function(Map, TileLayer, SceneView, dom, on){
+  ], function(Map, TileLayer, SceneView, FeatureLayer, dom, on){
     var transportLayer = new TileLayer({
       url:"https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer",
       id:"streets",
@@ -44,12 +45,17 @@
       id:"ny-footprint",
       opacity:0.5
     });
+    
+    var treesLayer = new FeatureLayer({
+        url: "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/Landscape_Trees/FeatureServer/0",
+        id:"carbon-storage-ontrees"
+    });
 
 
     var map = new Map({
-      basemap: "gray",
+      basemap: "hybrid",
       ground: "world-elevation",
-      layers:[footprintLayer]
+      layers:[footprintLayer, treesLayer]
     });
 
     map.add(transportLayer);
@@ -66,11 +72,16 @@
       if (evt.layer.id === "streets"){
         console.log("LayerView for streets created!", evt.layerView);
       }
+      if (evt.layer.id === "carbon-storage-ontrees"){
+        console.log("Layerview for trees created!", evt.layerView);
+      }
+        
+    
     });
 
     view.then(function() {
-      footprintLayer.then(function() {
-        view.goTo(footprintLayer.fullExtent);
+      treesLayer.then(function() {
+        view.goTo(treesLayer.fullExtent);
       });
     });
 
@@ -86,7 +97,7 @@
 <body>
   <div id="viewDiv"></div>
   <span id="layerToggle">
-    <input type="checkbox" id="streetsLyr"> Transportation
+    <input type="checkbox" id="streetsLyr" checked> Transportation
   </span>
 </body>
 </html>
