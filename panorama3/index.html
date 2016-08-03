@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Visualize all features with same simbol</title>
+    <title>Local test for Data Visualization</title>
     
     <link rel="stylesheet" href="https://js.arcgis.com/4.0/esri/css/main.css">
     <script src="https://js.arcgis.com/4.0/"></script>
@@ -18,21 +18,12 @@
           width: 100%;
         }
 
-        #infoDiv {
-          position: absolute;
-          bottom: 0;
-          right: 0;
-          max-width: 300px;
-          background-color: lightgray;
-          padding: 8px;
-          border-top-right-radius: 5px;
-          color: black;
-        }
     </style>
     <script>
         require([
             "esri/Map",
-            "esri/views/MapView",
+            "esri/PopupTemplate",
+            "esri/views/SceneView",
             "esri/layers/FeatureLayer",
             "esri/renderers/SimpleRenderer",
             "esri/symbols/SimpleMarkerSymbol",
@@ -41,55 +32,58 @@
             "esri/widgets/Legend",
             "dojo/domReady!"
         ], function(
-                Map, MapView, FeatureLayer, SimpleRenderer, SimpleMarkerSymbol,
+                Map, PopupTemplate, SceneView, FeatureLayer, SimpleRenderer, SimpleMarkerSymbol,
                 SimpleLineSymbol, SimpleFillSymbol, Legend){
             
             var citiesRenderer = new SimpleRenderer({
                 symbol: new SimpleMarkerSymbol({
                     size: 10,
+                    style:"diamond",
                     color: "#ff4000",
                     outline: {
-                        color: [255, 64, 0, 0.4],
+                        color: [255, 0, 0, 0.4],
                         width: 7
                     }
                 })
             });
             
+            var citiesPopup = new PopupTemplate({
+                
+            });
+            
             var citiesLayer = new FeatureLayer({
                 url: "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/WorldCities/FeatureServer/0",
                 renderer: citiesRenderer,
-                popupTemplate:{
-                    content: "{*}"
-                }
+                outFields: ["name_en", "id", "lat", "lng"],
+                popupTemplate: citiesPopup
             });
             
             var map = new Map({
                 basemap: "satellite",
+                ground: "world-elevation",
                 layers: [citiesLayer]
             });
             
-            var view = new MapView({
+            var view = new SceneView({
                 container: "viewDiv",
                 map: map,
-                center: [-76.925, 39.741638],
-                zoom: 7
+                center: [-70.669,-33.448],
+                scale: 40000000
             });
             
             var legend = new Legend({
                 view: view,
-                layerInfos: [
-                    {
-                        layer: citiesLayer,
-                        title: "Major Cities"
-                    }
-                ]
+                layerInfos: [{
+                    title: "SIGEN Events",
+                    layer: citiesLayer
+                }]
             });
-                
+            
+            view.ui.add(legend,"bottom-right");
         });
     </script>
 </head>
 <body>
 </body>
     <div id="viewDiv"></div>
-    <div id="infoDiv"></div>
 </html>
