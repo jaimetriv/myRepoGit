@@ -48,7 +48,36 @@
             });
             
             var citiesPopup = new PopupTemplate({
-                
+                title: "Major City",
+                content: [{
+                    type: "fields",
+                    fieldInfos: [{
+                        fieldName: "name_en",
+                        visible: true,
+                        label: "Name"
+                    },{
+                        fieldName: "id",
+                        visible: true,
+                        label: "Identificator"
+                    },{
+                        fieldName: "lat",
+                        visible: true,
+                        label: "Latitude"
+                    },{
+                        fieldName: "lng",
+                        visible: true,
+                        label: "Longitude"
+                    }]
+                },{
+                    type: "media",
+                    mediaInfos: [{
+                        title: "<b>Image of the city</b>",
+                        type: "image",
+                        value: {
+                            sourceURL: "https://cdn.loc.gov/service/pnp/highsm/21600/21679r.jpg"
+                        }
+                    }]
+                }]
             });
             
             var citiesLayer = new FeatureLayer({
