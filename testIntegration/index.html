@@ -16,14 +16,120 @@
 <script src="https://js.arcgis.com/4.0/"></script>
 <script>
   require([
-    "esri/Map",
-    "esri/layers/TileLayer",
-    "esri/views/SceneView",
-    "esri/layers/FeatureLayer",
-    "dojo/dom",
-    "dojo/on",
-    "dojo/domReady!"
-  ], function(Map, TileLayer, SceneView, FeatureLayer, dom, on){
+      "esri/views/SceneView",
+      "esri/Map",
+      "esri/layers/FeatureLayer",
+      "esri/layers/support/Field",
+      "esri/geometry/Point",
+      "esri/config",
+      "esri/renderers/SimpleRenderer",
+      "esri/symbols/SimpleMarkerSymbol",
+      "esri/widgets/Legend",
+      "esri/request",
+      "dojo/_base/array",
+      "dojo/dom",
+      "dojo/on",
+      "dojo/domReady!"
+  ], function(SceneView, Map, FeatureLayer, Field, Point,
+      SimpleRenderer, SimpleMarkerSymbol, Legend, esriRequest,
+      arrayUtils, dom, on){
+      
+      //Define featureLayer y legend
+      var lyr, legend;
+      
+      //Define campos para los features
+      var fields = [{
+          name: "title",
+          alias: "title",
+          type: "string"
+      },{
+          name: "url",
+          alias: "url",
+          type: "string"
+      },{
+          name: "link",
+          alias: "link",
+          type: "string"
+      },{
+          name: "time",
+          alias: "time",
+          type: "date"
+      },{
+          name: "detail",
+          alias: "detail",
+          type: "string"
+      },{
+          name: "name",
+          alias: "name",
+          type: "string"
+      },{
+          name: "ids",
+          alias: "ids",
+          type: "oid"
+      },{
+          name: "type",
+          alias: "type",
+          type: "string"
+      },{
+          name: "level",
+          alias: "level",
+          type: "integer"
+      }];
+ 
+      //define popupTemplate
+      var pTemplate = {
+          title: "Evento SiGEN",
+          content: [{
+              type: "fields",
+              fieldInfos: [{
+                  fieldName: "name",
+                  label: "Evento",
+                  visible: "true"
+              },{
+                  fieldName: "type",
+                  label: "Tipo",
+                  visible: "true"
+              },{
+                  fieldName: "time",
+                  label: "Fecha y Hora",
+                  visible: true
+              },{
+                  fieldName: "link",
+                  label: "Más Información",
+                  visible: "true"
+              }]
+          }],
+        fieldInfos: [{
+          fieldName: "time",
+          format: {
+            dateFormat: "short-date-le-short-time"
+          }
+        }]  
+      };
+        
+      //Crea map y vista
+      var map = new Map({
+          basemap: "satellite",
+          ground: "world-elevation"
+      });
+      
+      var view = new SceneView({
+          container: "viewDiv",
+          map: map,
+          center: [-70.669,-33.448],
+          scale: 40000000,
+          ui: {
+              padding: {
+                  bottom: 15,
+                  right: 0
+              }
+          }
+      });
+      
+      //Define renderer de eventos
+ 
+      
+      
   });
 </script>
 </head>

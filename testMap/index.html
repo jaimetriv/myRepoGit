@@ -38,7 +38,6 @@
       "esri/layers/FeatureLayer",
       "esri/layers/support/Field",
       "esri/geometry/Point",
-      "esri/config",
       "esri/renderers/SimpleRenderer",
       "esri/symbols/SimpleMarkerSymbol",
       "esri/widgets/Legend",
@@ -169,8 +168,8 @@
       var view = new MapView({
         container: "viewDiv",
         map: map,
-        center: [0, 0],
-        zoom: 3,
+        center: [-144.492, 62.771],
+        zoom: 5,
         // customize ui padding for legend placement
         ui: {
           padding: {
@@ -266,7 +265,6 @@
           .otherwise(errback);
       });
 
-      esriConfig.defaults.io.proxyUrl = "/proxy/";
       // Request the earthquake data
       function getData() {
 
@@ -274,14 +272,11 @@
         // month.geojson represents recorded earthquakes between 03/04/2016 and 04/04/2016
         // week.geojson represents recorded earthquakes betwen 03/28/2016 and 04/04/2016
 
-      var url = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson";
-      
-      esriRequest(url, {
-        responseType: "json"
-      }).then(function(response){
-        // The requested data
-        return response.data;
-      });
+        var url = "data/week.geojson";
+
+        return esriRequest(url, {
+          responseType: "json"
+        });
       }
 
       /**************************************************
