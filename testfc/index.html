@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>FeatureCollection GPS Data</title>
+
+  <style>
+    html,
+    body,
+    #viewDiv {
+      font-family: sans-serif;
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.0/esri/css/main.css">
+  <script src="https://js.arcgis.com/4.0/"></script>
+
+  <script>
+    require([
+        "esri/config",
+        "esri/Map",
+        "esri/views/SceneView",
+        "esri/geometry/Point",
+        "esri/layers/FeatureLayer",
+        "esri/renderers/SimpleRenderer",
+        "esri/symbols/SimpleMarkerSymbol",
+        "esri/tasks/QueryTask",
+        "esri/tasks/support/Query",
+        "dojo/on",
+        "dojo/domReady!"
+      ],
+      function(
+        esriConfig,
+        Map,
+        MapView,
+        Point,
+        FeatureLayer,
+        SimpleRenderer,
+        SimpleMarkerSymbol,
+        QueryTask, Query,
+        on
+      ) {
+        esriConfig.request.proxyUrl = "/proxy/proxy.php";
+        
+        var query = new Query({
+          where: "1=1",
+          returnGeometry: true,
+          outFields: ["*"],
+          outSpatialReference: { wkid: 4326 }
+        });
+        
+        var qTask = new QueryTask({
+          url: "http://services3.arcgis.com/JhvXIvt51Dn1oRPB/arcgis/rest/services/2011_GPS_Surveys/FeatureServer/1"
+        });
+        qTask.execute(query).then(function(results) {
+          var fields = results.fields;
+          var features = results.features;
+          // sort by the date field
+          features.sort(function(a, b) {
+            if (a.attributes.DateTime_ < b.attributes.DateTime_) {
+              return -1;
+            }
+            else if (a.attributes.DateTime_ > b.attributes.DateTime_) {
+              return 1;
+            }
+            else {
+              return 0;
+            }
+          });
+          console.log("features", features);
+          var feature = features[0];
+          var layer = new FeatureLayer({
+            objectIdField: "OBJECTID",
+            geometryType: "point",
+            fields: fields,
+            renderer: new SimpleRenderer({
+              type: "simple",
+              symbol: new SimpleMarkerSymbol({
+                style: "square",
+                color: "blue",
+                size: "8px",
+                outline: {
+                  color: [ 255, 255, 0 ],
+                  width: 3
+                }
+              })
+            }),
+            popupTemplate: {
+              title: "{PointID}",
+              content: "{*}"
+            },
+            source: [feature]
+          });
+          map = new Map({
+            basemap: "dark-gray",
+            layers: [layer]
+          });
+          view = new MapView({
+            container: "viewDiv",
+            map: map,
+            zoom: 4,
+            center: [-111.807, 32.553]
+          });
+          
+          view.then(function() {
+            view.goTo({
+              target: layer.source,
+              zoom: 8
+            }).then(function() {
+              var len = features.length;
+              var idx = 1;
+              setInterval(function() {
+                var feat = features[idx];
+                var graphic = layer.source.getItemAt(0).clone();
+                graphic.geometry = feat.geometry;
+                layer.source.add(graphic);
+                idx++;
+                if (idx === len) {
+                  idx = 0;
+                }
+              }, 100);
+            });
+          });
+        });
+      });
+  </script>
+</head>
+
+<body>
+  <div id="viewDiv"></div>
+  </div>
+</body>
+
+</html>
