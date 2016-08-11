@@ -29,11 +29,11 @@ h2 {
     opacity: 0.8;
     align-content: center;
 }
-.esri-ui-top-right {
+.esri-ui-top-right.esri-ui-corner {
     top: 0;
     right: 10px;
 }
-.esri-ui-bottom-left {
+.esri-ui-bottom-left.esri.ui-corner {
     bottom: 5px;
     left: 0;
 }
@@ -42,6 +42,7 @@ h2 {
 <script src="https://js.arcgis.com/4.0/"></script>
 <script>
             require([
+                "esri/tasks/Locator",
                 "esri/views/SceneView",
                 "esri/Map",
                 "esri/layers/FeatureLayer",
@@ -59,7 +60,7 @@ h2 {
                 "dojo/dom",
                 "dojo/on",
                 "dojo/domReady!"
-            ], function(SceneView, Map, FeatureLayer, Field, Point, esriConfig,
+            ], function(Locator, SceneView, Map, FeatureLayer, Field, Point, esriConfig,
                         SimpleRenderer, SimpleMarkerSymbol, Legend, esriRequest, Home, BasemapToggle, Search,
                         arrayUtils, dom, on){
 
@@ -92,6 +93,14 @@ h2 {
                     alias: "name",
                     type: "string"
                 },{
+                    name: "latitude",
+                    alias: "latitude",
+                    type: "string"
+                },{
+                    name: "longitude",
+                    alias: "longitude",
+                    type: "string"
+                },{
                     name: "altitude",
                     alias: "altitude",
                     type: "string"
@@ -111,8 +120,11 @@ h2 {
 
                 //define popupTemplate
                 var pTemplate = {
-                    title: "Evento SiGEN: {title}",
+                    title: "EVENTO: {title}",
                     content: [{
+                        type: "text",
+                        text: "Coordenadas: {latitude}S,{longitude}W"
+                    },{
                         type: "fields",
                         fieldInfos: [{
                             fieldName: "time",
@@ -135,6 +147,8 @@ h2 {
                         }
                     }]
                 };
+                
+
 
                 //Crea map y vista
                 var map = new Map({
@@ -200,6 +214,38 @@ h2 {
                     index: 0
                 });
                 
+                //Popup con la posición
+                
+                // Set up a locator task using the world geocoding service
+                var locatorTask = new Locator({
+                    url: "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer"
+                });
+                
+                view.on("click", function(evt) {
+                    // Get the coordinates of the click on the view
+                    var lat = Math.round(evt.mapPoint.latitude * 1000) / 1000;
+                    var lon = Math.round(evt.mapPoint.longitude * 1000) / 1000;
+                    
+                    view.popup.open({
+                        
+                        // Set the popup's title to the coordinates of the location
+                        title: "Coordenadas Lat/Long : [" + lat + ", " + lon + "]",
+                        location: evt.mapPoint // Set the location of the popup to the clicked location
+                    });
+                    // Display the popup
+                    // Execute a reverse geocode using the clicked location
+                    locatorTask.locationToAddress(evt.mapPoint).then(function(response) {
+                        // If an address is successfully found, print it to the popup's content
+                        var address = response.address.Match_addr;
+                        view.popup.content = address;
+                    }).otherwise(function(err) {
+                        // If the promise fails and no result is found, print a generic message
+                        // to the popup's content
+                        view.popup.content = "No address was found for this location";
+                    });
+                });
+                
+                
                 //función principal
                 view.then(function(){
                     getData()
@@ -230,8 +276,8 @@ h2 {
                     return arrayUtils.map(geoJson.features, function(feature, i){
                         return{
                             geometry: new Point({
-                                x: feature.geometry.coordinates[0],
-                                y: feature.geometry.coordinates[1]
+                                y: feature.geometry.coordinates[0],
+                                x: feature.geometry.coordinates[1]
                             }),
                             //solo los atributos que interesan
                             attributes:{
@@ -240,6 +286,8 @@ h2 {
                                 type: feature.properties.type,
                                 detail: feature.properties.detail,
                                 time: feature.properties.time,
+                                latitude: feature.geometry.coordinates[0],
+                                longitude: feature.geometry.coordinates[1],
                                 altitude: feature.geometry.coordinates[2],
                                 level: feature.properties.level,
                                 name: feature.properties.name,
