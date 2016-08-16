@@ -85,8 +85,8 @@ h2 {
                     alias: "time",
                     type: "date"
                 },{
-                    name: "detail",
-                    alias: "detail",
+                    name: "ficdatetime",
+                    alias: "ficdatetime",
                     type: "string"
                 },{
                     name: "name",
@@ -105,6 +105,10 @@ h2 {
                     alias: "altitude",
                     type: "string"
                 },{
+                    name: "coordinates",
+                    alias: "coordinates",
+                    type: "string"
+                },,{
                     name: "ids",
                     alias: "ids",
                     type: "oid"
@@ -114,7 +118,7 @@ h2 {
                     type: "string"
                 },{
                     name: "level",
-                    alias: "level",
+                    alias: "Nivel de criticidad",
                     type: "integer"
                 }];
 
@@ -122,14 +126,15 @@ h2 {
                 var pTemplate = {
                     title: "EVENTO: {title}",
                     content: [{
-                        type: "text",
-                        text: "Coordenadas: {latitude}S,{longitude}W"
-                    },{
                         type: "fields",
                         fieldInfos: [{
-                            fieldName: "time",
-                            label: "Fecha y Hora",
-                            visible: true
+                            fieldName: "ficdatetime",
+                            label: "Fecha y Hora (Ficticia)",
+                            visible: "true"
+                        },{
+                            fieldName: "coordinates",
+                            label: "Localización",
+                            visible: "true"
                         },{
                             fieldName: "type",
                             label: "Tipo",
@@ -148,11 +153,33 @@ h2 {
                     }]
                 };
                 
-
+                //Define color del evento por nivel
+                var colorVisVar = {
+                    type: "color",
+                    field: "level",
+                    stops: [
+                        {value: 2, color: "#FFFF00" },
+                        {value: 3, color: "#FF0000" }
+                    ]
+                };
+                
+                //Define renderer de eventos
+                var eventsRenderer = new SimpleRenderer({
+                    symbol: new SimpleMarkerSymbol({
+                        size: 10,
+                        style:"diamond",
+                        color: "#ff4000",
+                        outline: {
+                            color: [255, 0, 0, 0.5],
+                            width: 2
+                        }
+                    }),
+                    visualVariables: [colorVisVar]
+                });
 
                 //Crea map y vista
                 var map = new Map({
-                    basemap: "hybrid",
+                    basemap: "streets",
                     ground: "world-elevation"
                 });
 
@@ -168,84 +195,71 @@ h2 {
                         }
                     }
                 });
-                
-                //Define renderer de eventos
-                var eventsRenderer = new SimpleRenderer({
-                    symbol: new SimpleMarkerSymbol({
-                        size: 10,
-                        style:"diamond",
-                        color: "#ff4000",
-                        outline: {
-                            color: [255, 0, 0, 0.4],
-                            width: 3
-                        }
-                    })
-                });
-                
+
                 //Agrega el Home
                 var homeBtn = new Home({
                     view: view
                 });
-                
+
                 homeBtn.startup();
-                
-                view.ui.add(homeBtn, "top-left");
-                
+
+                view.ui.add(homeBtn, "bottom-left");
+
                 //Agrega BasemapToggle
                 var toggle = new BasemapToggle({
                     view: view,
-                    nextBasemap: "streets"
+                    nextBasemap: "hybrid"
                 });
-                
+
                 toggle.startup();
-                
-                view.ui.add(toggle, "bottom-left");
-                
+
+                view.ui.add(toggle, "top-right");
+
                 //Agrega Search
-                
+
                 var searchWidget = new Search({
                     view: view
                 });
-                
+
                 searchWidget.startup();
-                
+
                 view.ui.add(searchWidget, {
-                    position: "top-right",
+                    position: "top-left",
                     index: 0
                 });
-                
+
                 //Popup con la posición
-                
+
                 // Set up a locator task using the world geocoding service
-                var locatorTask = new Locator({
-                    url: "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer"
-                });
-                
-                view.on("click", function(evt) {
-                    // Get the coordinates of the click on the view
-                    var lat = Math.round(evt.mapPoint.latitude * 1000) / 1000;
-                    var lon = Math.round(evt.mapPoint.longitude * 1000) / 1000;
-                    
-                    view.popup.open({
-                        
-                        // Set the popup's title to the coordinates of the location
-                        title: "Coordenadas Lat/Long : [" + lat + ", " + lon + "]",
-                        location: evt.mapPoint // Set the location of the popup to the clicked location
-                    });
-                    // Display the popup
-                    // Execute a reverse geocode using the clicked location
-                    locatorTask.locationToAddress(evt.mapPoint).then(function(response) {
-                        // If an address is successfully found, print it to the popup's content
-                        var address = response.address.Match_addr;
-                        view.popup.content = address;
-                    }).otherwise(function(err) {
-                        // If the promise fails and no result is found, print a generic message
-                        // to the popup's content
-                        view.popup.content = "No address was found for this location";
-                    });
-                });
-                
-                
+                /*                var locatorTask = new Locator({
+                 url: "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer"
+                 });
+
+                 view.on("click", function(evt) {
+                 // Get the coordinates of the click on the view
+                 var lat = Math.round(evt.mapPoint.latitude * 1000) / 1000;
+                 var lon = Math.round(evt.mapPoint.longitude * 1000) / 1000;
+
+                 view.popup.open({
+
+                 // Set the popup's title to the coordinates of the location
+                 title: "Coordenadas Lat/Long : [" + lat + ", " + lon + "]",
+                 location: evt.mapPoint // Set the location of the popup to the clicked location
+                 });
+                 // Display the popup
+                 // Execute a reverse geocode using the clicked location
+                 locatorTask.locationToAddress(evt.mapPoint).then(function(response) {
+                 // If an address is successfully found, print it to the popup's content
+                 var address = response.address.Match_addr;
+                 view.popup.content = address;
+                 }).otherwise(function(err) {
+                 // If the promise fails and no result is found, print a generic message
+                 // to the popup's content
+                 view.popup.content = "No address was found for this location";
+                 });
+                 });*/
+
+
                 //función principal
                 view.then(function(){
                     getData()
@@ -284,11 +298,12 @@ h2 {
                                 ids: i,
                                 title: feature.properties.title,
                                 type: feature.properties.type,
-                                detail: feature.properties.detail,
+                                ficdatetime: feature.properties.detail,
                                 time: feature.properties.time,
                                 latitude: feature.geometry.coordinates[0],
                                 longitude: feature.geometry.coordinates[1],
                                 altitude: feature.geometry.coordinates[2],
+                                coordinates: feature.geometry.coordinates[0] + " S., " + feature.geometry.coordinates[1] + " W.",
                                 level: feature.properties.level,
                                 name: feature.properties.name,
                                 url: feature.properties.url,
@@ -321,32 +336,32 @@ h2 {
                 function errback(error) {
                     console.error("Creating layer fail.", error);
                 }
-                
+
                 //Crea la leyenda
 
-                  function createLegend(layer) {
-                      if (legend) {
-                          legend.layerInfos = [{
-                              layer: lyr,
-                              title: "Eventos"
-                          }];
-                      } else {
-                          legend = new Legend({
-                              view: view,
-                              layerInfos: [{
-                                  layer: lyr,
-                                  title: "Eventos"
-                              }]
-                          }, "infoDiv");
-                      }
-                      
-                  }
+                function createLegend(layer) {
+                    if (legend) {
+                        legend.layerInfos = [{
+                            layer: lyr,
+                            title: "Eventos"
+                        }];
+                    } else {
+                        legend = new Legend({
+                            view: view,
+                            layerInfos: [{
+                                layer: lyr,
+                                title: "Eventos"
+                            }]
+                        }, "infoDiv");
+                    }
 
-                  // Executes if data retrevial was unsuccessful.
-                  function errback(error) {
+                }
+
+                // Executes if data retrevial was unsuccessful.
+                function errback(error) {
                     console.error("Creating legend failed. ", error);
-                  }
-                
+                }
+
 
 
             });
@@ -355,7 +370,7 @@ h2 {
 <body>
   <div id="viewDiv">
       <div id="infoDiv">
-          <h2>Eventos SiGEN</h2>
+          <h2>EVENTOS SiGEN</h2>
       </div>
     </div>
 </body>
