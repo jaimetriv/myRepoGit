@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Test Integration</title>
+<style>
+html, body, #viewDiv {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+}
+h2 {
+    padding: 0;
+    margin: 0;
+    font-weight: bold;
+    font-size: medium;
+}
+#infoDiv {
+    position: absolute;
+    bottom: 20px;
+    right: 10px;
+    max-height: 80%;
+    background-color: white;
+    padding: 8px;
+    color: black;
+    opacity: 0.7;
+    align-content: center;
+}
+.esri-ui-top-right.esri-ui-corner {
+    top: 0;
+    right: 10px;
+}
+.esri-ui-bottom-left.esri.ui-corner {
+    bottom: 5px;
+    left: 0;
+}
+#infoDiv .esri-legend__layer-caption {
+    display: none;
+    padding: 6px 0;
+}
+</style>
+<link rel="stylesheet" href="https://js.arcgis.com/4.0/esri/css/main.css">
+<script src="https://js.arcgis.com/4.0/"></script>
+<script>
+            require([
+                "esri/tasks/Locator",
+                "esri/views/SceneView",
+                "esri/Map",
+                "esri/layers/FeatureLayer",
+                "esri/layers/support/Field",
+                "esri/geometry/Point",
+                "esri/config",
+                "esri/renderers/UniqueValueRenderer",
+                "esri/symbols/SimpleMarkerSymbol",
+                "esri/widgets/Legend",
+                "esri/request",
+                "esri/widgets/Home",
+                "esri/widgets/BasemapToggle",
+                "esri/widgets/Search",
+                "dojo/_base/array",
+                "dojo/dom",
+                "dojo/on",
+                "dojo/domReady!"
+            ], function(Locator, SceneView, Map, FeatureLayer, Field, Point, esriConfig,
+                        UniqueValueRenderer, SimpleMarkerSymbol, Legend, esriRequest, Home, BasemapToggle, Search,
+                        arrayUtils, dom, on){
+
+                //Define featureLayer
+                var lyr, legend;
+
+                //Define campos para los features
+                var fields = [{
+                    name: "title",
+                    alias: "title",
+                    type: "string"
+                },{
+                    name: "url",
+                    alias: "url",
+                    type: "string"
+                },{
+                    name: "link",
+                    alias: "link",
+                    type: "string"
+                },{
+                    name: "time",
+                    alias: "time",
+                    type: "date"
+                },{
+                    name: "ficdatetime",
+                    alias: "ficdatetime",
+                    type: "string"
+                },{
+                    name: "name",
+                    alias: "name",
+                    type: "string"
+                },{
+                    name: "latitude",
+                    alias: "latitude",
+                    type: "string"
+                },{
+                    name: "longitude",
+                    alias: "longitude",
+                    type: "string"
+                },{
+                    name: "altitude",
+                    alias: "altitude",
+                    type: "string"
+                },{
+                    name: "coordinates",
+                    alias: "coordinates",
+                    type: "string"
+                },{
+                    name: "ids",
+                    alias: "ids",
+                    type: "oid"
+                },{
+                    name: "type",
+                    alias: "type",
+                    type: "string"
+                },{
+                    name: "level",
+                    alias: "Nivel de criticidad",
+                    type: "integer"
+                }];
+
+                //define popupTemplate
+                var pTemplate = {
+                    title: "EVENTO: {title}",
+                    content: [{
+                        type: "fields",
+                        fieldInfos: [{
+                            fieldName: "ficdatetime",
+                            label: "Fecha y Hora (Ficticia)",
+                            visible: "true"
+                        },{
+                            fieldName: "coordinates",
+                            label: "Localización Lat/Long",
+                            visible: "true"
+                        },{
+                            fieldName: "type",
+                            label: "Tipo de Evento",
+                            visible: "true"
+                        },{
+                            fieldName: "url",
+                            label: "Detalle",
+                            visible: "true"
+                        }]
+                    }],
+                    fieldInfos: [{
+                        fieldName: "time",
+                        format: {
+                            dateFormat: "short-date-le-short-time"
+                        }
+                    }]
+                };
+                
+                var terremotoSym = new SimpleMarkerSymbol({
+                        size: 12,
+                        style:"diamond",
+                        color: "#ff0000",
+                        outline: {
+                            color: [255, 0, 0, 0.2],
+                            width: 2
+                        }
+                });
+                
+                var aluvionSym = new SimpleMarkerSymbol({
+                        size: 12,
+                        style:"diamond",
+                        color: "#DF7401",
+                        outline: {
+                            color: [255, 0, 0, 0.2],
+                            width: 2
+                        }
+                });
+                
+                var hombreSym = new SimpleMarkerSymbol({
+                        size: 12,
+                        style:"diamond",
+                        color: "#00cc00",
+                        outline: {
+                            color: [255, 0, 0, 0.2],
+                            width: 2
+                        }
+                });
+                
+                var incendioSym = new SimpleMarkerSymbol({
+                        size: 12,
+                        style:"diamond",
+                        color: "#FFFF00",
+                        outline: {
+                            color: [255, 0, 0, 0.2],
+                            width: 2
+                        }
+                });
+                
+                var otroSym = new SimpleMarkerSymbol({
+                        size: 12,
+                        style:"diamond",
+                        color: "#ffffff",
+                        outline: {
+                            color: [255, 0, 0, 0.2],
+                            width: 2
+                        }
+                });
+                
+                var tsunamiSym = new SimpleMarkerSymbol({
+                        size: 12,
+                        style:"diamond",
+                        color: "#cc0099",
+                        outline: {
+                            color: [255, 0, 0, 0.2],
+                            width: 2
+                        }
+                });
+                
+                var marejadaSym = new SimpleMarkerSymbol({
+                        size: 12,
+                        style:"diamond",
+                        color: "#0000ff",
+                        outline: {
+                            color: [255, 0, 0, 0.2],
+                            width: 2
+                        }
+                });
+                
+                //Define renderer de eventos
+                var eventsRenderer = new UniqueValueRenderer({
+                    field: "type",
+                    defaultSymbol: otroSym,
+                    defaultLabel: "Otro tipo",
+                    uniqueValueInfos: [
+                        {
+                            value: "Terremoto",
+                            symbol: terremotoSym,
+                            label: "Terremoto"
+                        }, {
+                            value: "Aluvión",
+                            symbol: aluvionSym,
+                            label: "Aluvión"
+                        }, {
+                            value: "Marejadas",
+                            symbol: marejadaSym,
+                            label: "Marejadas"
+                        }, {
+                            value: "Causado por el hombre",
+                            symbol: hombreSym,
+                            label: "Causado por el hombre"
+                        },{
+                            value: "Tsunami",
+                            symbol: tsunamiSym,
+                            label: "Tsunami"
+                        }, {
+                            value: "Incendio",
+                            symbol: incendioSym,
+                            label: "Incendio"
+                        }]
+                });
+
+                //Crea map y vista
+                var map = new Map({
+                    basemap: "hybrid",
+                    ground: "world-elevation"
+                });
+
+                var view = new SceneView({
+                    container: "viewDiv",
+                    map: map,
+                    center: [-69.96,-20.574],
+                    zoom: 6,
+                    ui: {
+                        padding: {
+                            bottom: 15,
+                            right: 0
+                        }
+                    }
+                });
+
+                //Agrega el Home
+                var homeBtn = new Home({
+                    view: view
+                });
+
+                homeBtn.startup();
+
+                view.ui.add(homeBtn, "top-left");
+
+                //Agrega BasemapToggle
+                var toggle = new BasemapToggle({
+                    view: view,
+                    nextBasemap: "osm"
+                });
+
+                toggle.startup();
+
+                view.ui.add(toggle, "top-right");
+
+                //Agrega Search
+
+                var searchWidget = new Search({
+                    view: view
+                });
+
+                searchWidget.startup();
+
+                view.ui.add(searchWidget, {
+                    position: "top-right",
+                    index: 0
+                });
+
+
+
+
+                //función principal
+                view.then(function(){
+                    getData()
+                            .then(createGraphics)
+                            .then(createLayer)
+                            .then(createLegend)
+                            .otherwise(errback);
+                });
+
+                //Configura la funete de datos
+                esriConfig.request.corsEnabledServers.push("www.sigen.mil:8080");
+
+                //Solicita los datos
+                function getData(){
+
+                    var url ="http://www.sigen.mil:8080/sigenWeb/sigen?service=rest/-1398171613788204027/5727558813966464005/1467241149150/2";
+
+                    return esriRequest(url,{
+                        responseType: "json"
+                    });
+                }
+
+                //crea los graphics
+                function createGraphics(response){
+
+                    var geoJson = response.data;
+
+                    return arrayUtils.map(geoJson.features, function(feature, i){
+                        return{
+                            geometry: new Point({
+                                y: feature.geometry.coordinates[0],
+                                x: feature.geometry.coordinates[1]
+                            }),
+                            //solo los atributos que interesan
+                            attributes:{
+                                ids: i,
+                                title: feature.properties.title,
+                                type: feature.properties.type,
+                                ficdatetime: feature.properties.detail,
+                                time: feature.properties.time,
+                                latitude: feature.geometry.coordinates[0],
+                                longitude: feature.geometry.coordinates[1],
+                                altitude: feature.geometry.coordinates[2],
+                                coordinates: feature.geometry.coordinates[0] + " S., " + feature.geometry.coordinates[1] + " W.",
+                                level: feature.properties.level,
+                                name: feature.properties.name,
+                                url: feature.properties.url,
+                                link: feature.properties.link
+                            }
+                        };
+                    });
+                }
+
+                //Crea FeatureLayer con Graphics
+
+                function createLayer(graphics){
+                    lyr = new FeatureLayer({
+                        source: graphics,
+                        fields: fields,
+                        objectIdField: "ids",
+                        renderer: eventsRenderer,
+                        spatialReference: {
+                            wkid: 4326
+                        },
+                        geometryType: "point",
+                        popupTemplate: pTemplate
+                    });
+
+                    map.add(lyr);
+                    return lyr;
+                }
+
+                //Mensaje de error
+                function errback(error) {
+                    console.error("Creating layer fail.", error);
+                }
+
+                //Crea la leyenda
+
+                function createLegend(layer) {
+                    if (legend) {
+                        legend.layerInfos = [{
+                            layer: lyr,
+                            title: "Eventos"
+                        }];
+                    } else {
+                        legend = new Legend({
+                            view: view,
+                            layerInfos: [{
+                                layer: lyr,
+                                title: "Eventos"
+                            }]
+                        }, "infoDiv");
+                    }
+
+                }
+
+                // Executes if data retrevial was unsuccessful.
+                function errback(error) {
+                    console.error("Creating legend failed. ", error);
+                }
+
+/*                //Popup con la posición
+
+                // Set up a locator task using the world geocoding service
+                var locatorTask = new Locator({
+                    url: "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer"
+                });
+                
+                view.on("click", function(evt) {
+                    // Get the coordinates of the click on the view
+                    var lat = Math.round(evt.mapPoint.latitude * 10000) / 10000;
+                    var lon = Math.round(evt.mapPoint.longitude * 10000) / 10000;
+                    
+                    view.popup.open({
+                        // Set the popup's title to the coordinates of the location
+                        title: "Coordenadas Lat/Long : [" + lat + ", " + lon + "]",
+                        location: evt.mapPoint // Set the location of the popup to the clicked location
+                    });
+                    // Display the popup
+                    // Execute a reverse geocode using the clicked location
+                    
+                    locatorTask.locationToAddress(evt.mapPoint).then(function(response) {
+                        // If an address is successfully found, print it to the popup's content
+                        var address = response.address.Match_addr;
+                        view.popup.content = address;
+                    }).otherwise(function(err) {
+                        // If the promise fails and no result is found, print a generic message
+                        // to the popup's content
+                        view.popup.content = "No address was found for this location";
+                    });
+                });*/
+
+            });
+</script>
+</head>
+<body>
+  <div id="viewDiv">
+      <div id="infoDiv">
+          <h2>Tipo de Evento</h2>
+      </div>
+    </div>
+</body>
+</html>

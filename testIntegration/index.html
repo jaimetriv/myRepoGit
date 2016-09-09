@@ -108,7 +108,7 @@ h2 {
                     name: "coordinates",
                     alias: "coordinates",
                     type: "string"
-                },,{
+                },{
                     name: "ids",
                     alias: "ids",
                     type: "oid"
@@ -159,8 +159,8 @@ h2 {
                     field: "level",
                     stops: [
                         //{value: 1, color: "#008000"},
-                        {value: 2, color: "#FFFF00" },
-                        {value: 3, color: "#FF0000" }
+                        {value: 2, color: "#FFFF00" , label: "alerta"},
+                        {value: 3, color: "#FF0000", label: "emergencia" }
                     ]
                 };
                 
@@ -175,20 +175,21 @@ h2 {
                             width: 2
                         }
                     }),
+                    label: "Evento SiGEN",
                     visualVariables: [colorVisVar]
                 });
 
                 //Crea map y vista
                 var map = new Map({
-                    basemap: "streets",
+                    basemap: "hybrid",
                     ground: "world-elevation"
                 });
 
                 var view = new SceneView({
                     container: "viewDiv",
                     map: map,
-                    center: [-70.669,-33.448],
-                    scale: 40000000,
+                    center: [-69.96,-20.574],
+                    zoom: 6,
                     ui: {
                         padding: {
                             bottom: 15,
@@ -209,12 +210,12 @@ h2 {
                 //Agrega BasemapToggle
                 var toggle = new BasemapToggle({
                     view: view,
-                    nextBasemap: "hybrid"
+                    nextBasemap: "osm"
                 });
 
                 toggle.startup();
 
-                view.ui.add(toggle, "bottom-left");
+                view.ui.add(toggle, "top-right");
 
                 //Agrega Search
 
@@ -229,36 +230,7 @@ h2 {
                     index: 0
                 });
 
-                //Popup con la posición
 
-                // Set up a locator task using the world geocoding service
-                /*                var locatorTask = new Locator({
-                 url: "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer"
-                 });
-
-                 view.on("click", function(evt) {
-                 // Get the coordinates of the click on the view
-                 var lat = Math.round(evt.mapPoint.latitude * 1000) / 1000;
-                 var lon = Math.round(evt.mapPoint.longitude * 1000) / 1000;
-
-                 view.popup.open({
-
-                 // Set the popup's title to the coordinates of the location
-                 title: "Coordenadas Lat/Long : [" + lat + ", " + lon + "]",
-                 location: evt.mapPoint // Set the location of the popup to the clicked location
-                 });
-                 // Display the popup
-                 // Execute a reverse geocode using the clicked location
-                 locatorTask.locationToAddress(evt.mapPoint).then(function(response) {
-                 // If an address is successfully found, print it to the popup's content
-                 var address = response.address.Match_addr;
-                 view.popup.content = address;
-                 }).otherwise(function(err) {
-                 // If the promise fails and no result is found, print a generic message
-                 // to the popup's content
-                 view.popup.content = "No address was found for this location";
-                 });
-                 });*/
 
 
                 //función principal
@@ -363,7 +335,36 @@ h2 {
                     console.error("Creating legend failed. ", error);
                 }
 
+/*                //Popup con la posición
 
+                // Set up a locator task using the world geocoding service
+                var locatorTask = new Locator({
+                    url: "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer"
+                });
+                
+                view.on("click", function(evt) {
+                    // Get the coordinates of the click on the view
+                    var lat = Math.round(evt.mapPoint.latitude * 10000) / 10000;
+                    var lon = Math.round(evt.mapPoint.longitude * 10000) / 10000;
+                    
+                    view.popup.open({
+                        // Set the popup's title to the coordinates of the location
+                        title: "Coordenadas Lat/Long : [" + lat + ", " + lon + "]",
+                        location: evt.mapPoint // Set the location of the popup to the clicked location
+                    });
+                    // Display the popup
+                    // Execute a reverse geocode using the clicked location
+                    
+                    locatorTask.locationToAddress(evt.mapPoint).then(function(response) {
+                        // If an address is successfully found, print it to the popup's content
+                        var address = response.address.Match_addr;
+                        view.popup.content = address;
+                    }).otherwise(function(err) {
+                        // If the promise fails and no result is found, print a generic message
+                        // to the popup's content
+                        view.popup.content = "No address was found for this location";
+                    });
+                });*/
 
             });
 </script>
@@ -371,7 +372,7 @@ h2 {
 <body>
   <div id="viewDiv">
       <div id="infoDiv">
-          <h2>EVENTOS SiGEN</h2>
+          <h2>Leyenda</h2>
       </div>
     </div>
 </body>
