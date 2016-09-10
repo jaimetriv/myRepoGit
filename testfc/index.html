@@ -117,6 +117,7 @@
                 var feat = features[idx];
                 var graphic = layer.source.getItemAt(0).clone();
                 graphic.geometry = feat.geometry;
+                layer.source.removeAll();
                 layer.source.add(graphic);
                 idx++;
                 if (idx === len) {
