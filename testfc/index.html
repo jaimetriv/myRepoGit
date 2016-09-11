@@ -44,7 +44,7 @@
         QueryTask, Query,
         on
       ) {
-        esriConfig.request.proxyUrl = "/proxy/proxy.php";
+        esriConfig.request.corsEnabledServers.push("www.sigen.mil:8080");
         
         var query = new Query({
           where: "1=1",
@@ -54,7 +54,7 @@
         });
         
         var qTask = new QueryTask({
-          url: "http://services3.arcgis.com/JhvXIvt51Dn1oRPB/arcgis/rest/services/2011_GPS_Surveys/FeatureServer/1"
+          url: "http://www.sigen.mil:8080/sigenWeb/sigen?service=rest/-1398171613788204027/5727558813966464005/1467241149150/2"
         });
         qTask.execute(query).then(function(results) {
           var fields = results.fields;
@@ -74,7 +74,7 @@
           console.log("features", features);
           var feature = features[0];
           var layer = new FeatureLayer({
-            objectIdField: "OBJECTID",
+            objectIdField: "ids",
             geometryType: "point",
             fields: fields,
             renderer: new SimpleRenderer({
@@ -90,7 +90,7 @@
               })
             }),
             popupTemplate: {
-              title: "{PointID}",
+              title: "{ids}",
               content: "{*}"
             },
             source: [feature]
@@ -117,7 +117,6 @@
                 var feat = features[idx];
                 var graphic = layer.source.getItemAt(0).clone();
                 graphic.geometry = feat.geometry;
-                layer.source.removeAll();
                 layer.source.add(graphic);
                 idx++;
                 if (idx === len) {

@@ -314,13 +314,13 @@ h2 {
 
 
                 //función principal
-                view.then(function(){
+                setInterval(view.then(function(){
                     getData()
                             .then(createGraphics)
                             .then(createLayer)
                             .then(createLegend)
                             .otherwise(errback);
-                });
+                }), 10*1000);
 
                 //Configura la funete de datos
                 esriConfig.request.corsEnabledServers.push("www.sigen.mil:8080");
@@ -415,18 +415,18 @@ h2 {
                     console.error("Creating legend failed. ", error);
                 }
 
-/*                //Popup con la posición
+                //Popup con la posición
 
                 // Set up a locator task using the world geocoding service
                 var locatorTask = new Locator({
                     url: "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer"
                 });
                 
-                view.on("click", function(evt) {
+                view.on('contextmenu', function(evt) {
                     // Get the coordinates of the click on the view
                     var lat = Math.round(evt.mapPoint.latitude * 10000) / 10000;
                     var lon = Math.round(evt.mapPoint.longitude * 10000) / 10000;
-                    
+                    rightClick = true;
                     view.popup.open({
                         // Set the popup's title to the coordinates of the location
                         title: "Coordenadas Lat/Long : [" + lat + ", " + lon + "]",
@@ -444,7 +444,7 @@ h2 {
                         // to the popup's content
                         view.popup.content = "No address was found for this location";
                     });
-                });*/
+                });
 
             });
 </script>
