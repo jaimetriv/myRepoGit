@@ -377,7 +377,8 @@ h2 {
                             .then(createLegend)
                             .then(function(){
                         setInterval(function(){
-                            circleLyr.source.removeAll(); iconLyr.source.removeAll();
+                            circleLyr.source.removeAll();
+                            iconLyr.source.removeAll();
                             getData()
                             .then(createGraphics)
                             .then(createLayer)
@@ -497,11 +498,12 @@ h2 {
                 });
                 
                 view.on("click", function(evt) {
-                    
-                    view.hitTest(evt.screenPoint).then(function(response){
-                    
-                        var result = response.results[0];
-                        if(result.length == 0){
+
+                  // Search for graphics at the clicked location
+                  view.hitTest(evt.screenPoint).then(function(response) {
+                    var result = response.results[0];
+
+                    if (result.graphic == null) {
                             // Get the coordinates of the click on the view
                             var lat = Math.round(evt.mapPoint.latitude * 10000) / 10000;
                             var lon = Math.round(evt.mapPoint.longitude * 10000) / 10000;
@@ -521,14 +523,14 @@ h2 {
                             }).otherwise(function(err) {
                                 // If the promise fails and no result is found, print a generic message
                                 // to the popup's content
-                                view.popup.content = "No address was found for this location";
+                                view.popup.content = "No se ha encontrado una dirección en esta posición";
                                 console.error(err);
                             });  
-                            
-                        }                  
-
-                    });
+                    }
+                  });
                 });
+                
+                
 
             });
 </script>
