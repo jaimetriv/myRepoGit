@@ -66,13 +66,12 @@ h2 {
                 "esri/widgets/Home",
                 "esri/widgets/BasemapToggle",
                 "esri/widgets/Search",
-                "esri/tasks/support/Query",
                 "dojo/_base/array",
                 "dojo/dom",
                 "dojo/on",
                 "dojo/domReady!"
             ], function(Locator, SceneView, Map, FeatureLayer, Field, Point, esriConfig,
-                        UniqueValueRenderer, SimpleMarkerSymbol, Legend, esriRequest, Home, BasemapToggle, Search, Query,
+                        UniqueValueRenderer, SimpleMarkerSymbol, Legend, esriRequest, Home, BasemapToggle, Search,
                         arrayUtils, dom, on){
 
                 //Define featureLayer
@@ -375,15 +374,14 @@ h2 {
                             .then(createGraphics)
                             .then(createLayer)
                             .then(createLegend)
-                            .then(function(){
-                        setInterval(function(){
-                            circleLyr.source.removeAll(); iconLyr.source.removeAll();
-                            getData()
-                            .then(createGraphics)
-                            .then(createLayer)
-                        }, 30000)
-                    })
                             .otherwise(errback);
+                });
+                
+                view.then(function() {
+                    view.goTo({
+                        target: iconLyr.source,
+                        zoom: 4
+                    })
                 });
 
                 //Configura la funete de datos
@@ -434,17 +432,7 @@ h2 {
 
                 
                 function createLayer(graphics){
-                    iconLyr = new FeatureLayer({
-                        source: graphics,
-                        fields: fields,
-                        objectIdField: "ids",
-                        renderer: eventsIconRenderer,
-                        spatialReference: {
-                            wkid: 4326
-                        },
-                        geometryType: "point",
-                        popupTemplate: pTemplate
-                    });
+                    
                     circleLyr = new FeatureLayer({
                         source: graphics,
                         fields: fields,
@@ -456,6 +444,17 @@ h2 {
                         geometryType: "point",
                         popupTemplate: pTemplate
 
+                    });
+                    iconLyr = new FeatureLayer({
+                        source: graphics,
+                        fields: fields,
+                        objectIdField: "ids",
+                        renderer: eventsIconRenderer,
+                        spatialReference: {
+                            wkid: 4326
+                        },
+                        geometryType: "point",
+                        popupTemplate: pTemplate
                     });
 
                     map.add(iconLyr);
@@ -475,7 +474,7 @@ h2 {
                         view: view,
                         layerInfos: [{
                             layer: circleLyr,
-                            title: "Alarte"
+                            title: "Alerta"
                             },{
                             layer: iconLyr,
                             title: "Tipo"   
@@ -489,7 +488,7 @@ h2 {
                     console.error("Creating legend failed. ", error);
                 }
 
-                //Popup con la posición
+/*                //Popup con la posición
 
                 // Set up a locator task using the world geocoding service
                 var locatorTask = new Locator({
@@ -497,38 +496,28 @@ h2 {
                 });
                 
                 view.on("click", function(evt) {
+                    // Get the coordinates of the click on the view
+                    var lat = Math.round(evt.mapPoint.latitude * 10000) / 10000;
+                    var lon = Math.round(evt.mapPoint.longitude * 10000) / 10000;
                     
-                    view.hitTest(evt.screenPoint).then(function(response){
-                    
-                        var result = response.results[0];
-                        if(result.length == 0){
-                            // Get the coordinates of the click on the view
-                            var lat = Math.round(evt.mapPoint.latitude * 10000) / 10000;
-                            var lon = Math.round(evt.mapPoint.longitude * 10000) / 10000;
-
-                            view.popup.open({
-                                // Set the popup's title to the coordinates of the location
-                                title: "Coordenadas Lat/Long : [" + lat + ", " + lon + "]",
-                                location: evt.mapPoint // Set the location of the popup to the clicked location
-                            });
-                            // Display the popup
-                            // Execute a reverse geocode using the clicked location
-
-                            locatorTask.locationToAddress(evt.mapPoint).then(function(response) {
-                                // If an address is successfully found, print it to the popup's content
-                                var address = response.address.Match_addr;
-                                view.popup.content = address;
-                            }).otherwise(function(err) {
-                                // If the promise fails and no result is found, print a generic message
-                                // to the popup's content
-                                view.popup.content = "No address was found for this location";
-                                console.error(err);
-                            });  
-                            
-                        }                  
-
+                    view.popup.open({
+                        // Set the popup's title to the coordinates of the location
+                        title: "Coordenadas Lat/Long : [" + lat + ", " + lon + "]",
+                        location: evt.mapPoint // Set the location of the popup to the clicked location
                     });
-                });
+                    // Display the popup
+                    // Execute a reverse geocode using the clicked location
+                    
+                    locatorTask.locationToAddress(evt.mapPoint).then(function(response) {
+                        // If an address is successfully found, print it to the popup's content
+                        var address = response.address.Match_addr;
+                        view.popup.content = address;
+                    }).otherwise(function(err) {
+                        // If the promise fails and no result is found, print a generic message
+                        // to the popup's content
+                        view.popup.content = "No address was found for this location";
+                    });
+                });*/
 
             });
 </script>
