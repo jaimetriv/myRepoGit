@@ -66,12 +66,13 @@ h2 {
                 "esri/widgets/Home",
                 "esri/widgets/BasemapToggle",
                 "esri/widgets/Search",
+                "esri/tasks/support/Query",
                 "dojo/_base/array",
                 "dojo/dom",
                 "dojo/on",
                 "dojo/domReady!"
             ], function(Locator, SceneView, Map, FeatureLayer, Field, Point, esriConfig,
-                        UniqueValueRenderer, SimpleMarkerSymbol, Legend, esriRequest, Home, BasemapToggle, Search,
+                        UniqueValueRenderer, SimpleMarkerSymbol, Legend, esriRequest, Home, BasemapToggle, Search, Query,
                         arrayUtils, dom, on){
 
                 //Define featureLayer
@@ -162,107 +163,107 @@ h2 {
                         }
                     }]
                 };
-                
+
                 var terremotoSym = new SimpleMarkerSymbol({
-                        size: 12,
-                        style:"diamond",
-                        color: "#ff0000",
-                        outline: {
-                            color: [255, 0, 0, 0.2],
-                            width: 2
-                        }
+                    size: 12,
+                    style:"diamond",
+                    color: "#ff0000",
+                    outline: {
+                        color: [255, 0, 0, 0.2],
+                        width: 2
+                    }
                 });
-                
+
                 var aluvionSym = new SimpleMarkerSymbol({
-                        size: 12,
-                        style:"diamond",
-                        color: "#DF7401",
-                        outline: {
-                            color: [255, 0, 0, 0.2],
-                            width: 2
-                        }
+                    size: 12,
+                    style:"diamond",
+                    color: "#DF7401",
+                    outline: {
+                        color: [255, 0, 0, 0.2],
+                        width: 2
+                    }
                 });
-                
+
                 var accidenteSym = new SimpleMarkerSymbol({
-                        size: 12,
-                        style:"diamond",
-                        color: "#00FF00",
-                        outline: {
-                            color: [255, 0, 0, 0.2],
-                            width: 2
-                        }
+                    size: 12,
+                    style:"diamond",
+                    color: "#00FF00",
+                    outline: {
+                        color: [255, 0, 0, 0.2],
+                        width: 2
+                    }
                 });
-                
+
                 var incendioSym = new SimpleMarkerSymbol({
-                        size: 12,
-                        style:"diamond",
-                        color: "#FFFF00",
-                        outline: {
-                            color: [255, 0, 0, 0.2],
-                            width: 2
-                        }
+                    size: 12,
+                    style:"diamond",
+                    color: "#FFFF00",
+                    outline: {
+                        color: [255, 0, 0, 0.2],
+                        width: 2
+                    }
                 });
-                
+
                 var otroSym = new SimpleMarkerSymbol({
-                        size: 12,
-                        style:"diamond",
-                        color: "#ffffff",
-                        outline: {
-                            color: [255, 0, 0, 0.2],
-                            width: 2
-                        }
+                    size: 12,
+                    style:"diamond",
+                    color: "#ffffff",
+                    outline: {
+                        color: [255, 0, 0, 0.2],
+                        width: 2
+                    }
                 });
-                
+
                 var tsunamiSym = new SimpleMarkerSymbol({
-                        size: 12,
-                        style:"diamond",
-                        color: "#cc0099",
-                        outline: {
-                            color: [255, 0, 0, 0.2],
-                            width: 2
-                        }
+                    size: 12,
+                    style:"diamond",
+                    color: "#cc0099",
+                    outline: {
+                        color: [255, 0, 0, 0.2],
+                        width: 2
+                    }
                 });
-                
+
                 var marejadaSym = new SimpleMarkerSymbol({
-                        size: 12,
-                        style:"diamond",
-                        color: "#0000ff",
-                        outline: {
-                            color: [255, 0, 0, 0.2],
-                            width: 2
-                        }
+                    size: 12,
+                    style:"diamond",
+                    color: "#0000ff",
+                    outline: {
+                        color: [255, 0, 0, 0.2],
+                        width: 2
+                    }
                 });
-                
+
                 var alertaSym = new SimpleMarkerSymbol({
-                        size: 15,
-                        style:"circle",
-                        color: [255, 255, 0, 0.1],
-                        outline: {
-                            color: "#ffff00",
-                            width: 2
-                        }
+                    size: 15,
+                    style:"circle",
+                    color: [255, 255, 0, 0.1],
+                    outline: {
+                        color: "#ffff00",
+                        width: 2
+                    }
                 });
-  
+
                 var emergenciaSym = new SimpleMarkerSymbol({
-                        size: 15,
-                        style:"circle",
-                        color: [255, 0, 0, 0.1],
-                        outline: {
-                            color: "#ff0000",
-                            width: 2
-                        }
+                    size: 15,
+                    style:"circle",
+                    color: [255, 0, 0, 0.1],
+                    outline: {
+                        color: "#ff0000",
+                        width: 2
+                    }
                 });
-                
+
                 var infoSym = new SimpleMarkerSymbol({
-                        size: 15,
-                        style:"circle",
-                        color: [0, 255, 0, 0.1],
-                        outline: {
-                            color: "#00FF00",
-                            width: 2
-                        }
+                    size: 15,
+                    style:"circle",
+                    color: [0, 255, 0, 0.1],
+                    outline: {
+                        color: "#00FF00",
+                        width: 2
+                    }
                 });
-                
+
                 //Define renderer de iconos de eventos
                 var eventsIconRenderer = new UniqueValueRenderer({
                     field: "type",
@@ -312,7 +313,7 @@ h2 {
                             label: "Alerta"
                         }]
                 });
-                
+
                 //Crea map y vista
                 var map = new Map({
                     basemap: "hybrid",
@@ -363,10 +364,10 @@ h2 {
                     position: "top-right",
                     index: 0
                 });
-                
-                var iconLyr;
-                var circleLyr;
-                
+
+                var iconLyr = new FeatureLayer();
+                var circleLyr = new FeatureLayer();
+
 
                 //función principal
                 view.then(function(){
@@ -374,14 +375,15 @@ h2 {
                             .then(createGraphics)
                             .then(createLayer)
                             .then(createLegend)
+                            .then(function(){
+                                setInterval(function(){
+                                    iconLyr.source.removeAll();
+                                    circleLyr.source.removeAll();
+                                    getData()
+                                            .then(loadLayer);
+                                }, 10000)
+                            })
                             .otherwise(errback);
-                });
-                
-                view.then(function() {
-                    view.goTo({
-                        target: iconLyr.source,
-                        zoom: 4
-                    })
                 });
 
                 //Configura la funete de datos
@@ -430,9 +432,19 @@ h2 {
 
                 //Crea FeatureLayer con Graphics
 
-                
+
                 function createLayer(graphics){
-                    
+                    iconLyr = new FeatureLayer({
+                        source: graphics,
+                        fields: fields,
+                        objectIdField: "ids",
+                        renderer: eventsIconRenderer,
+                        spatialReference: {
+                            wkid: 4326
+                        },
+                        geometryType: "point",
+                        popupTemplate: pTemplate
+                    });
                     circleLyr = new FeatureLayer({
                         source: graphics,
                         fields: fields,
@@ -445,21 +457,43 @@ h2 {
                         popupTemplate: pTemplate
 
                     });
-                    iconLyr = new FeatureLayer({
-                        source: graphics,
-                        fields: fields,
-                        objectIdField: "ids",
-                        renderer: eventsIconRenderer,
-                        spatialReference: {
-                            wkid: 4326
-                        },
-                        geometryType: "point",
-                        popupTemplate: pTemplate
-                    });
 
                     map.add(iconLyr);
                     map.add(circleLyr);
                     return lyr;
+                }
+                
+                function loadLayer(response){
+                    
+                    var geoJson = response.data;
+
+                    var eventsResults =  arrayUtils.map(geoJson.features, function(feature, i){
+                        return{
+                            geometry: new Point({
+                                y: feature.geometry.coordinates[0],
+                                x: feature.geometry.coordinates[1]
+                            }),
+                            //solo los atributos que interesan
+                            attributes:{
+                                ids: i,
+                                title: feature.properties.title,
+                                type: feature.properties.type,
+                                ficdatetime: feature.properties.detail,
+                                time: feature.properties.time,
+                                latitude: feature.geometry.coordinates[0],
+                                longitude: feature.geometry.coordinates[1],
+                                altitude: feature.geometry.coordinates[2],
+                                coordinates: feature.geometry.coordinates[0] + " S., " + feature.geometry.coordinates[1] + " W.",
+                                level: feature.properties.level,
+                                name: feature.properties.name,
+                                url: feature.properties.url,
+                                link: feature.properties.link
+                            }
+                        };
+                    });
+                    
+                    iconLyr.graphics.addMany(eventsResults);
+                    circleLyr.graphics.addMany(eventsResults);
                 }
 
                 //Mensaje de error
@@ -474,12 +508,12 @@ h2 {
                         view: view,
                         layerInfos: [{
                             layer: circleLyr,
-                            title: "Alerta"
-                            },{
+                            title: "Alarte"
+                        },{
                             layer: iconLyr,
-                            title: "Tipo"   
-                            }]
-                        }, "infoDiv");
+                            title: "Tipo"
+                        }]
+                    }, "infoDiv");
 
                 }
 
@@ -488,36 +522,41 @@ h2 {
                     console.error("Creating legend failed. ", error);
                 }
 
-/*                //Popup con la posición
+                //Popup con la posición
 
                 // Set up a locator task using the world geocoding service
                 var locatorTask = new Locator({
                     url: "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer"
                 });
-                
+
                 view.on("click", function(evt) {
-                    // Get the coordinates of the click on the view
-                    var lat = Math.round(evt.mapPoint.latitude * 10000) / 10000;
-                    var lon = Math.round(evt.mapPoint.longitude * 10000) / 10000;
-                    
-                    view.popup.open({
-                        // Set the popup's title to the coordinates of the location
-                        title: "Coordenadas Lat/Long : [" + lat + ", " + lon + "]",
-                        location: evt.mapPoint // Set the location of the popup to the clicked location
+
+                    // Search for graphics at the clicked location
+                    view.hitTest(evt.screenPoint).then(function(response) {
+                        var result = response.results[0];
+                        if (result.graphic == null) {
+                            // Get the coordinates of the click on the view
+                            var lat = Math.round(evt.mapPoint.latitude * 10000) / 10000;
+                            var lon = Math.round(evt.mapPoint.longitude * 10000) / 10000;
+                            view.popup.open({
+                                // Set the popup's title to the coordinates of the location
+                                title: "Coordenadas Lat/Long : [" + lat + ", " + lon + "]",
+                                location: evt.mapPoint // Set the location of the popup to the clicked location
+                            });
+                            // Display the popup
+                            // Execute a reverse geocode using the clicked location
+                            locatorTask.locationToAddress(evt.mapPoint).then(function(response) {
+                                // If an address is successfully found, print it to the popup's content
+                                var address = response.address.Match_addr;
+                                view.popup.content = address;
+                            }).otherwise(   function(err) {
+                                // If the promise fails and no result is found, print a generic message
+                                // to the popup's content
+                                view.popup.content = "No se ha encontrado una dirección en esta posición";
+                            });
+                        }
                     });
-                    // Display the popup
-                    // Execute a reverse geocode using the clicked location
-                    
-                    locatorTask.locationToAddress(evt.mapPoint).then(function(response) {
-                        // If an address is successfully found, print it to the popup's content
-                        var address = response.address.Match_addr;
-                        view.popup.content = address;
-                    }).otherwise(function(err) {
-                        // If the promise fails and no result is found, print a generic message
-                        // to the popup's content
-                        view.popup.content = "No address was found for this location";
-                    });
-                });*/
+                });
 
             });
 </script>
