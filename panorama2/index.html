@@ -22,71 +22,58 @@
     opacity: 0.75;
   }
 </style>
-<link rel="stylesheet" href="https://js.arcgis.com/4.0/esri/css/main.css">
-<script src="https://js.arcgis.com/4.0/"></script>
+<link rel="stylesheet" href="https://js.arcgis.com/4.1/esri/css/main.css">
+<script src="https://js.arcgis.com/4.1/"></script>
 <script>
   require([
     "esri/Map",
-    "esri/layers/TileLayer",
+    "esri/layers/FeatureLayer",
     "esri/views/SceneView",
     "dojo/dom",
     "dojo/on",
     "dojo/domReady!"
-  ], function(Map, TileLayer, SceneView, dom, on){
-    var transportLayer = new TileLayer({
-      url:"https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer",
-      id:"streets",
-      opacity:0.7
+  ], function(Map, FeatureLayer, SceneView, dom, on){
+      
+    var healthFacilities = new FeatureLayer({
+        url:"http://www.geoportal.cl/ArcGIS/rest/services/MinisteriodeSalud/chile_minsal_establecimientos_salud/MapServer/0",
+        outFields: ["*"],
+        popupTemplate: template
     });
+      
+    var template = {
+        title: "Establecimiento: {NOMESTE}",
+        content: "<p>Región, <b>{NOMREG}</b>.</p>" +
+          "<ul><li>{CERTIFI}</li>" +
+          "<li>{DEPEND}</li>" +
+          "<li>{NIVEL}</li></ul>",
+    };
 
-    var footprintLayer = new TileLayer({
-      url:"https://tiles.arcgis.com/tiles/nGt4QxSblgDfeJn9/arcgis/rest/services/New_York_Footprint/MapServer",
-      id:"ny-footprint",
-      opacity:0.5
-    });
 
 
     var map = new Map({
       basemap: "gray",
       ground: "world-elevation",
-      layers:[footprintLayer]
+      layers:[healthFacilities]
     });
 
-    map.add(transportLayer);
 
     var view = new SceneView({
       container: "viewDiv",     // Reference to the scene div created in step 5
       map: map                 // Reference to the map object created before the scene
     });
 
-    view.on("layerview-create", function(evt){
-      if (evt.layer.id === "ny-footprint"){
-        console.log("LayerView for New York footprint created!", evt.layerView);
-      }
-      if (evt.layer.id === "streets"){
-        console.log("LayerView for streets created!", evt.layerView);
-      }
-    });
 
     view.then(function() {
-      footprintLayer.then(function() {
-        view.goTo(footprintLayer.fullExtent);
+      healthFacilities.then(function() {
+        view.goTo(healthFacilities.fullExtent);
       });
     });
 
-    var streetsLyrToggle = dom.byId("streetsLyr");
-
-    on(streetsLyrToggle, "change", function(){
-      transportLayer.visible = streetsLyrToggle.checked;
-    });
 
   });
 </script>
 </head>
 <body>
   <div id="viewDiv"></div>
-  <span id="layerToggle">
-    <input type="checkbox" id="streetsLyr"> Transportation
-  </span>
 </body>
 </html>
