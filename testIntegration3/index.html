@@ -314,17 +314,43 @@ h2 {
                         }]
                 });
 
+                //crea capas de servicios
+                var healthCenters = new FeatureLayer({
+                    url:"http://www.geoportal.cl/ArcGIS/rest/services/MinisteriodeSalud/chile_minsal_establecimientos_salud/MapServer?",
+                    outFields: ["*"],
+                    minScale: 300000
+                });
+                
+                var police = new FeatureLayer({
+                    url:"http://www.geoportal.cl/arcgis/rest/services/MinisteriodeInterior/chile_minterior_carabineros_cuarteles/MapServer?",
+                    outFields: ["*"],
+                    minScale: 300000
+                });
+                
+                var hospitals = new FeatureLayer({
+                    url:"http://www.geoportal.cl/arcgis/rest/services/MinisteriodeSalud/chile_minsal_establecimientos_hospitalarios/MapServer?",
+                    outFields: ["*"],
+                    minScale: 300000
+                });
+                
+                var fireStations = new FeatureLayer({
+                    url:"http://www.geoportal.cl/arcgis/rest/services/Otros/chile_bomberos_cuerpos/MapServer/0",
+                    outFields: ["*"],
+                });
+                
+                
                 //Crea map y vista
                 var map = new Map({
-                    basemap: "hybrid",
-                    ground: "world-elevation"
+                    basemap: "osm",
+                    ground: "world-elevation",
+                    layers:[healthCenters, police, hospitals, fireStations]
                 });
 
                 var view = new SceneView({
                     container: "viewDiv",
                     map: map,
-                    center: [-69.5471,-33.3018],
-                    zoom: 4,
+                    center: [ -73.2358, -39.8298],
+                    zoom: 8,
                     ui: {
                         padding: {
                             bottom: 15,
@@ -345,7 +371,7 @@ h2 {
                 //Agrega BasemapToggle
                 var toggle = new BasemapToggle({
                     view: view,
-                    nextBasemap: "osm"
+                    nextBasemap: "hybrid"
                 });
 
                 toggle.startup();

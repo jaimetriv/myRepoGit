@@ -56,6 +56,7 @@ h2 {
                 "esri/views/SceneView",
                 "esri/Map",
                 "esri/layers/FeatureLayer",
+                "esri/layers/TileLayer",
                 "esri/layers/support/Field",
                 "esri/geometry/Point",
                 "esri/config",
@@ -71,7 +72,7 @@ h2 {
                 "dojo/dom",
                 "dojo/on",
                 "dojo/domReady!"
-            ], function(Locator, SceneView, Map, FeatureLayer, Field, Point, esriConfig,
+            ], function(Locator, SceneView, Map, FeatureLayer, TileLayer, Field, Point, esriConfig,
                         UniqueValueRenderer, SimpleMarkerSymbol, Legend, esriRequest, Home, BasemapToggle, Search, Query,
                         arrayUtils, dom, on){
 
@@ -314,17 +315,53 @@ h2 {
                         }]
                 });
 
+                
+                //crea capas de servicios
+                var healthCenters = new FeatureLayer({
+                    url:"http://www.geoportal.cl/ArcGIS/rest/services/MinisteriodeSalud/chile_minsal_establecimientos_salud/MapServer?",
+                    outFields: ["*"],
+                    minScale: 300000
+                });
+                
+                var police = new FeatureLayer({
+                    url:"http://www.geoportal.cl/arcgis/rest/services/MinisteriodeInterior/chile_minterior_carabineros_cuarteles/MapServer?",
+                    outFields: ["*"],
+                    minScale: 300000
+                });
+                
+                var hospitals = new FeatureLayer({
+                    url:"http://www.geoportal.cl/arcgis/rest/services/MinisteriodeSalud/chile_minsal_establecimientos_hospitalarios/MapServer?",
+                    outFields: ["*"],
+                    minScale: 300000
+                });
+                
+                var schools = new FeatureLayer({
+                    url:"http://www.geoportal.cl/arcgis/rest/services/MinisteriodeEducacion/chile_mineduc_establecimientoseducacionales/MapServer/0",
+                    minScale: 300000
+                });
+
+                var fire = new FeatureLayer({
+                    url:"http://www.geoportal.cl/arcgis/rest/services/Otros/chile_bomberos_cuerpos/MapServer/0",
+                });
+
+                
+                var volcanoes = new FeatureLayer({
+                    url:"http://www.geoportal.cl/arcgis/rest/services/MinisteriodeMineria/chile_mmin_sernageomin_volcanes/MapServer/0",
+                });
+
+                
                 //Crea map y vista
                 var map = new Map({
-                    basemap: "hybrid",
-                    ground: "world-elevation"
+                    basemap: "osm",
+                    ground: "world-elevation",
+                    layers:[healthCenters, police, hospitals, schools, fire, volcanoes]
                 });
 
                 var view = new SceneView({
                     container: "viewDiv",
                     map: map,
-                    center: [-69.5471,-33.3018],
-                    zoom: 4,
+                    center: [ -73.2358, -39.8298],
+                    zoom: 8,
                     ui: {
                         padding: {
                             bottom: 15,
@@ -345,7 +382,7 @@ h2 {
                 //Agrega BasemapToggle
                 var toggle = new BasemapToggle({
                     view: view,
-                    nextBasemap: "osm"
+                    nextBasemap: "hybrid"
                 });
 
                 toggle.startup();
@@ -464,14 +501,14 @@ h2 {
                     return lyr;
                 }
                 
-                // va al último graphics
+/*                // va al último graphics
 
                 
                 circleLyr.then(function(graphics) {
                         var i = graphics.length;
                         var geometry = graphics.geometry[i];
                         view.goTo(geometry);
-                });
+                });*/
 
                 //Mensaje de error
                 function errback(error) {
