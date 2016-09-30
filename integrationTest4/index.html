@@ -48,8 +48,8 @@ h2 {
     
     
 </style>
-<link rel="stylesheet" href="https://js.arcgis.com/4.0/esri/css/main.css">
-<script src="https://js.arcgis.com/4.0/"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.1/esri/css/main.css">
+  <script src="https://js.arcgis.com/4.1/"></script>
 <script>
             require([
                 "esri/tasks/Locator",
@@ -365,8 +365,8 @@ h2 {
                     index: 0
                 });
 
-                var iconLyr = new FeatureLayer();
-                var circleLyr = new FeatureLayer();
+                var iconLyr;
+                var circleLyr;
 
 
                 //función principal
@@ -377,11 +377,12 @@ h2 {
                             .then(createLegend)
                             .then(function(){
                                 setInterval(function(){
-                                    iconLyr.source.removeAll();
                                     circleLyr.source.removeAll();
+                                    iconLyr.source.removeAll();
                                     getData()
-                                            .then(loadLayer);
-                                }, 10000)
+                                            .then(createGraphics)
+                                            .then(createLayer)
+                                }, 60000)
                             })
                             .otherwise(errback);
                 });
@@ -463,38 +464,14 @@ h2 {
                     return lyr;
                 }
                 
-                function loadLayer(response){
-                    
-                    var geoJson = response.data;
+                // va al último graphics
 
-                    var eventsResults =  arrayUtils.map(geoJson.features, function(feature, i){
-                        return{
-                            geometry: new Point({
-                                y: feature.geometry.coordinates[0],
-                                x: feature.geometry.coordinates[1]
-                            }),
-                            //solo los atributos que interesan
-                            attributes:{
-                                ids: i,
-                                title: feature.properties.title,
-                                type: feature.properties.type,
-                                ficdatetime: feature.properties.detail,
-                                time: feature.properties.time,
-                                latitude: feature.geometry.coordinates[0],
-                                longitude: feature.geometry.coordinates[1],
-                                altitude: feature.geometry.coordinates[2],
-                                coordinates: feature.geometry.coordinates[0] + " S., " + feature.geometry.coordinates[1] + " W.",
-                                level: feature.properties.level,
-                                name: feature.properties.name,
-                                url: feature.properties.url,
-                                link: feature.properties.link
-                            }
-                        };
-                    });
-                    
-                    iconLyr.graphics.addMany(eventsResults);
-                    circleLyr.graphics.addMany(eventsResults);
-                }
+                
+                circleLyr.then(function(graphics) {
+                        var i = graphics.length;
+                        var geometry = graphics.geometry[i];
+                        view.goTo(geometry);
+                });
 
                 //Mensaje de error
                 function errback(error) {
@@ -508,10 +485,10 @@ h2 {
                         view: view,
                         layerInfos: [{
                             layer: circleLyr,
-                            title: "Alarte"
+                            title: "Nivel de alerta"
                         },{
                             layer: iconLyr,
-                            title: "Tipo"
+                            title: "Tipo de emergencia"
                         }]
                     }, "infoDiv");
 
@@ -521,6 +498,8 @@ h2 {
                 function errback(error) {
                     console.error("Creating legend failed. ", error);
                 }
+                
+
 
                 //Popup con la posición
 
@@ -549,7 +528,7 @@ h2 {
                                 // If an address is successfully found, print it to the popup's content
                                 var address = response.address.Match_addr;
                                 view.popup.content = address;
-                            }).otherwise(   function(err) {
+                            }).otherwise(function(err) {
                                 // If the promise fails and no result is found, print a generic message
                                 // to the popup's content
                                 view.popup.content = "No se ha encontrado una dirección en esta posición";
@@ -564,7 +543,6 @@ h2 {
 <body>
   <div id="viewDiv">
       <div id="infoDiv">
-          <h2>Eventos SiGEN</h2>
       </div>
     </div>
 </body>

@@ -48,8 +48,8 @@ h2 {
     
     
 </style>
-<link rel="stylesheet" href="https://js.arcgis.com/4.0/esri/css/main.css">
-<script src="https://js.arcgis.com/4.0/"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.0/esri/css/main.css">
+  <script src="https://js.arcgis.com/4.0/"></script>
 <script>
             require([
                 "esri/tasks/Locator",
@@ -382,7 +382,7 @@ h2 {
                                     getData()
                                             .then(createGraphics)
                                             .then(createLayer)
-                                }, 45000)
+                                }, 60000)
                             })
                             .otherwise(errback);
                 });
@@ -463,6 +463,15 @@ h2 {
                     map.add(circleLyr);
                     return lyr;
                 }
+                
+                // va al último graphics
+
+                
+                circleLyr.then(function(graphics) {
+                        var i = graphics.length;
+                        var geometry = graphics.geometry[i];
+                        view.goTo(geometry);
+                });
 
                 //Mensaje de error
                 function errback(error) {
@@ -476,10 +485,10 @@ h2 {
                         view: view,
                         layerInfos: [{
                             layer: circleLyr,
-                            title: "Alarte"
+                            title: "Nivel de alerta"
                         },{
                             layer: iconLyr,
-                            title: "Tipo"
+                            title: "Tipo de emergencia"
                         }]
                     }, "infoDiv");
 
@@ -489,6 +498,8 @@ h2 {
                 function errback(error) {
                     console.error("Creating legend failed. ", error);
                 }
+                
+
 
                 //Popup con la posición
 
@@ -521,7 +532,6 @@ h2 {
                                 // If the promise fails and no result is found, print a generic message
                                 // to the popup's content
                                 view.popup.content = "No se ha encontrado una dirección en esta posición";
-                                console.error(err);
                             });
                         }
                     });
@@ -533,7 +543,6 @@ h2 {
 <body>
   <div id="viewDiv">
       <div id="infoDiv">
-          <h2>Eventos SiGEN</h2>
       </div>
     </div>
 </body>
